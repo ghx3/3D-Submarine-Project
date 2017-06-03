@@ -12,16 +12,9 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
-/**
- * This class uses the default camera
- * 
- * @author Jacqui Whalley
- *
- */
-
-public class Camera implements MouseListener, MouseMotionListener/*,MouseWheelListener*/{
+public class Camera implements MouseListener, MouseMotionListener{
    
-	private Submarine ss = new Submarine(); 
+	
 	// some hard limitations to camera values
     private static final double MIN_DISTANCE = 1;
     private static final double MIN_FOV = 1;
@@ -31,7 +24,7 @@ public class Camera implements MouseListener, MouseMotionListener/*,MouseWheelLi
     private double lookAt[] = {0, 0, 0};
     
     // the location of camera
-    private double[] location = {0, 0, 0};
+    private double[] location = {0, 1, 0};
     
     
     // the camera rotation angles
@@ -47,18 +40,12 @@ public class Camera implements MouseListener, MouseMotionListener/*,MouseWheelLi
     double distanceToOrigin = 5;
     double windowWidth      = 1;
     double windowHeight     = 1;
-
+    double Y = 0;
     // GLU context
     GLU glu = new GLU();
     
-
-    /**
-     * Constructor of the trackball camera
-     * @param drawable the GL drawable context to register this camera with
-     */
     public Camera(GLCanvas canvas) {
     	canvas.addMouseListener(this);
-    	//canvas.addMouseWheelListener(this);
     	canvas.addMouseMotionListener(this);
     	
     }
@@ -80,16 +67,17 @@ public class Camera implements MouseListener, MouseMotionListener/*,MouseWheelLi
         // setting up perspective projection
         // far distance is hardcoded to 3*cameraDistance. If your scene is bigger,
         // you might need to adapt this
-        glu.gluPerspective(fieldOfView, windowWidth / windowHeight, 0.1, distanceToOrigin * 3);
+        glu.gluPerspective(fieldOfView, windowWidth / windowHeight, 0.1, distanceToOrigin * 5);
         
         // then set up the camera position and orientation
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
         // adjust the submarine location here...
         double r = distanceToOrigin * Math.cos(Math.toRadians(angleY));
-        double camZ = location[2] + r * Math.cos(Math.toRadians(angleX));
-        double camX = location[0] + r * Math.sin(Math.toRadians(angleX));
-        double camY = location[1] + distanceToOrigin * Math.sin(Math.toRadians(angleY));
+        double camZ = lookAt[2] + r * Math.cos(Math.toRadians(angleX));
+        double camX = lookAt[0] + r * Math.sin(Math.toRadians(angleX));
+        double camY = lookAt[1] + distanceToOrigin * Math.sin(Math.toRadians(angleY));
+        Y = camY;
         glu.gluLookAt(
             camX, camY, camZ,                // eye
             lookAt[0], lookAt[1], lookAt[2], // center
@@ -163,12 +151,7 @@ public class Camera implements MouseListener, MouseMotionListener/*,MouseWheelLi
         lookAt[1] = y;
         lookAt[2] = z;
     }
-    public void setLocation(double x, double y, double z){
-    	location[0] = x;
-    	location[1] = y;
-    	location[2] = z;
-    }
-
+  
     /**
      * Resets the camera rotations.
      */
@@ -238,26 +221,11 @@ public class Camera implements MouseListener, MouseMotionListener/*,MouseWheelLi
     @Override
     public void mouseMoved(MouseEvent e) {
     }
-
-   /* @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-      /*  int clicks = e.getWheelRotation();
-        // zoom using the FoV
-        while (clicks > 0) {
-            fieldOfView *= 1.1;
-            clicks--;
-        }
-        while (clicks < 0) {
-            fieldOfView /= 1.1;
-            clicks++;
-        }
-        limitFieldOfView()}
-    }*/
     
     public void setA(double angle){
     	angleX = angle;
     }
-    public void setAl(double angle){
+    public void setEl(double angle){
     	angleY = angle;
     }
     
